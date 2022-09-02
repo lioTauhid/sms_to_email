@@ -43,6 +43,10 @@ dependencies:
   mailer: ^5.2.0
   google_sign_in: ^5.4.1
   shared_preferences: ^2.0.15
+  firebase_core: ^1.21.1
+  firebase_auth: ^3.7.0
+  flutter_signin_button: ^2.0.0
+  
 
 
 dev_dependencies:
