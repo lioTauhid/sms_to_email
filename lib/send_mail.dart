@@ -9,17 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
-import 'package:sms_forward/google_signIn.dart';
+import 'loginPage.dart';
 
 class EmailSender extends StatefulWidget {
-  //  EmailSender({Key? key, required User user, })
-  //     : _user = user,
-
-  //       super(key: key);
-
-  // final User _user;
-  User? user;
-  EmailSender({this.user});
+  const EmailSender({Key? key}) : super(key: key);
 
   @override
   State<EmailSender> createState() => _EmailSenderState();
@@ -28,11 +21,14 @@ class EmailSender extends StatefulWidget {
 class _EmailSenderState extends State<EmailSender> {
   SmsQuery query = SmsQuery();
   late List<SmsMessage> messages = [];
+  late List<SmsMessage> newMessages = [];
   int? timeStamp;
+  String? toEmail;
+  String messageBody = "";
+  bool isSent = false;
 
   @override
   void initState() {
-    // signInWithGoogle();
     // TODO: implement initState
     super.initState();
     loadData();
@@ -41,9 +37,36 @@ class _EmailSenderState extends State<EmailSender> {
   void loadData() async {
     final prefs = await SharedPreferences.getInstance();
     timeStamp = prefs.getInt('time');
+    toEmail = prefs.getString('email');
     messages = await query.querySms(
       kinds: [SmsQueryKind.inbox],
     );
+    messageBody = "";
+    if (timeStamp == null) {
+      /// Check all sms first time
+      newMessages = [];
+      addEmailDialog(context);
+      for (int i = 0; i < messages.length; i++) {
+        print("Check all sms");
+        newMessages.add(messages[i]);
+        messageBody = "$messageBody\n----------------------------------------"
+            "\n${messages[i].sender}--\n${messages[i].body}\n${messages[i].date!.toString()}";
+      }
+    } else {
+      /// Check new sms
+      newMessages = [];
+      for (int i = 0; i < messages.length; i++) {
+        if (messages[i]
+                .date!
+                .compareTo(DateTime.fromMillisecondsSinceEpoch(timeStamp!)) ==
+            1) {
+          print("New sms found");
+          newMessages.add(messages[i]);
+          messageBody = "$messageBody\n----------------------------------------"
+              "\n${messages[i].sender}\n${messages[i].body}\n${messages[i].date!.toString()}";
+        }
+      }
+    }
     setState(() {});
   }
 
@@ -53,9 +76,13 @@ class _EmailSenderState extends State<EmailSender> {
         drawer: Drawer(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             ListTile(
-              title: Text('Setting'),
-              leading: Icon(Icons.settings),
-              onLongPress: () {},
+              title: Text('Add Email'),
+              leading: Icon(Icons.email),
+              onTap: () async {
+                await addEmailDialog(context);
+                setState(() {});
+                Navigator.of(context).pop();
+              },
             ),
             ListTile(
               title: Text('About Us'),
@@ -91,94 +118,47 @@ class _EmailSenderState extends State<EmailSender> {
             ),
           ],
         ),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start,
-          children: [  SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              ' Name : ${widget.user!.displayName.toString()}',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              ' Email : ${widget.user!.email.toString()}',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              ' Token : ${widget.user!.uid.toString()}',
-                              style: TextStyle(
-                                  fontSize: 17, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-            Expanded(
-              child: SizedBox(
-                  height: Size.infinite.height,
-                  width: Size.infinite.width,
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      //  physics: NeverScrollableScrollPhysics(),
-                      itemCount:  messages.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                          
-                            ListTile(
-                              title: Text(messages[index].sender.toString()),
-                              subtitle: Text(messages[index].body.toString()),
-                              trailing: Icon(
-                                Icons.cloud_done,
-                                color: Colors.lightBlueAccent,
-                              ),
-                              // tileColor: Colors.greenAccent,
-                            ),
-                            Divider(
-                              thickness: 2,
-                            )
-                          ],
-                        );
-                      })),
-            ),
-          ],
-        ));
+        body: SizedBox(
+            height: Size.infinite.height,
+            width: Size.infinite.width,
+            child: ListView.builder(
+                shrinkWrap: true,
+                //  physics: NeverScrollableScrollPhysics(),
+                itemCount: newMessages.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text(newMessages[index].sender.toString()),
+                        subtitle: Text(newMessages[index].body.toString()),
+                        trailing: Icon(
+                          Icons.cloud_done,
+                          color: isSent ? Colors.blue : Colors.blueGrey,
+                        ),
+                        // tileColor: Colors.greenAccent,
+                      ),
+                      Divider(
+                        thickness: 2,
+                      )
+                    ],
+                  );
+                })));
   }
 
   Future<void> sendNewSms() async {
     final prefs = await SharedPreferences.getInstance();
-    String messageBody = "";
-
-    if (timeStamp == null) {
-      /// Send all sms
-      for (int i = 0; i < messages.length; i++) {
-        print("send all sms");
-        messageBody = "$messageBody\n----------------------------------------"
-            "\n${messages[i].sender}\n${messages[i].body}\n${messages[i].date!.millisecondsSinceEpoch.toString()}";
-      }
-    } else {
-      /// Check new sms
-      for (int i = 0; i < messages.length; i++) {
-        if (messages[i]
-                .date!
-                .compareTo(DateTime.fromMillisecondsSinceEpoch(timeStamp!)) ==
-            1) {
-          print("new sms found");
-          messageBody = "$messageBody\n----------------------------------------"
-              "\n${messages[i].sender}\n${messages[i].body}\n${messages[i].date!.millisecondsSinceEpoch.toString()}";
-        }
-      }
-    }
     if (messageBody.isNotEmpty) {
       /// Send sms here
-      sendEmail('SMS from phone', 'rahimsr983@gmail.com', 'SMS', messageBody)
+      sendEmail('SMS from App', toEmail!, 'New SMS', messageBody)
           .then((value) async {
-        SnackBar(content: Text('Send mail SuccessFully'));
+        showSnackBar(context, "Email sent SuccessFully");
         print("sms sent!!!!!!!!!!!!!");
         timeStamp = messages[0].date!.millisecondsSinceEpoch;
-        await prefs.setInt('time', messages[0].date!.millisecondsSinceEpoch);
+        await prefs.setInt('time', timeStamp!);
+        isSent = true;
+        setState(() {});
       });
     }
     print(messageBody);
@@ -190,17 +170,12 @@ class _EmailSenderState extends State<EmailSender> {
     String subject,
     String body,
   ) async {
-    // GoogleAuthApi.signOut();
-    final user = await GoogleAuthApi.signIn();
-    if (user == null) return;
-    final email = user.email;
-    final auth = await user.authentication;
-    final token = auth.accessToken;
     print('Authenticaltion mail $email');
+    print('Authenticaltion token $token');
 
-    final smtpServer = gmailSaslXoauth2(email, token!);
+    final smtpServer = gmailSaslXoauth2(email!, token!);
     final message = Message()
-      ..from = Address(email, title)
+      ..from = Address(email!, title)
       ..recipients = [toEmail]
       ..subject = subject
       ..text = body;
@@ -211,5 +186,81 @@ class _EmailSenderState extends State<EmailSender> {
     } on MailerException catch (e) {
       print(e);
     }
+  }
+
+  Future<void> addEmailDialog(BuildContext context) async {
+    final controller = TextEditingController();
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Receiver Email Address'),
+          actions: [
+            MaterialButton(
+              elevation: 0,
+              minWidth: MediaQuery.of(context).size.width / 4,
+              height: 40,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              onPressed: () async {
+                toEmail = controller.text;
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('email', controller.text);
+                setState(() {});
+                Navigator.of(context).pop();
+                showSnackBar(context, "Receiver Email added");
+              },
+              color: Colors.blue,
+              child: Text("Save"),
+              textColor: Colors.white,
+            ),
+            MaterialButton(
+              elevation: 0,
+              minWidth: MediaQuery.of(context).size.width / 4,
+              height: 40,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              color: Colors.blue,
+              child: Text("Cancel"),
+              textColor: Colors.white,
+            ),
+          ],
+          content: SizedBox(
+            width: double.maxFinite,
+            height: MediaQuery.of(context).size.height - 600,
+            child: TextFormField(
+              decoration: const InputDecoration(
+                  hintText: 'ex: exaple@gmail.com',
+                  labelText: "Enter Email Address",
+                  border: OutlineInputBorder()),
+              controller: controller,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        message,
+      ),
+      duration: const Duration(seconds: 6),
+      backgroundColor: Colors.blue,
+      action: SnackBarAction(
+        label: 'Ok',
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    ));
   }
 }
