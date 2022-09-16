@@ -29,17 +29,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^2.0.11
   flutter_sms_inbox: ^1.0.1
   permission_handler: ^8.1.4+2
-  cupertino_icons: ^1.0.2
   mailer: ^5.2.0
   google_sign_in: ^5.4.1
   shared_preferences: ^2.0.15
   firebase_core: ^1.21.1
   firebase_auth: ^3.7.0
-  flutter_signin_button: ^2.0.0
-  
 
 
 dev_dependencies:

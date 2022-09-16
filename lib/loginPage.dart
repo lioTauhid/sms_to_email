@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +9,7 @@ import 'package:sms_forward/send_mail.dart';
 
 String? email;
 String? token;
+var userC;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -46,25 +49,22 @@ class _LoginPageState extends State<LoginPage> {
 
       //CHECKING IS ON
       assert(!user!.isAnonymous);
-      assert(await user!.getIdToken() != null);
 
-      final User? currentUser = await _auth.currentUser;
+      final User? currentUser = _auth.currentUser;
       assert(currentUser!.uid == user!.uid);
-      print(user);
 
       if (user != null) {
         email = user.email;
         token = googleSignInAuthentication.accessToken;
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: ((context) => const EmailSender())));
+        userC = user;
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: ((context) => const EmailSender())));
       }
-
       return user;
     } catch (e) {
       print(e);
     }
+    return null;
   }
 
   @override
@@ -75,7 +75,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<String?> refreshToken() async {
-    print("Token Refresh");
     final GoogleSignInAccount? googleSignInAccount =
         await googleSignIn.signInSilently();
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -90,6 +89,7 @@ class _LoginPageState extends State<LoginPage> {
     final User? user = userCredential.user;
     email = user!.email;
     token = googleSignInAuthentication.accessToken;
+    userC = user;
 
     return googleSignInAuthentication.accessToken; // New refreshed token
   }
@@ -105,10 +105,10 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void signOut() async {
-    await googleSignIn.signOut();
-    await _auth.signOut();
-  }
+  // void signOut() async {
+  //   await googleSignIn.signOut();
+  //   await _auth.signOut();
+  // }
 
   @override
   Widget build(BuildContext context) {
