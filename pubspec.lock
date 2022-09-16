@@ -36,16 +36,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.16.0"
-<<<<<<< HEAD
-  cross_file:
-    dependency: transitive
-    description:
-      name: cross_file
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.3+1"
-=======
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -59,11 +49,7 @@ packages:
       name: fake_async
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "1.3.1"
-=======
-    version: "1.3.0"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   ffi:
     dependency: transitive
     description:
@@ -246,22 +232,14 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "0.12.12"
-=======
-    version: "0.12.11"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "0.2.0"
-=======
-    version: "0.1.4"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   meta:
     dependency: transitive
     description:
@@ -282,11 +260,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "1.8.2"
-=======
-    version: "1.8.1"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   path_provider:
     dependency: "direct main"
     description:
@@ -452,11 +426,7 @@ packages:
       name: source_span
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "1.9.1"
-=======
-    version: "1.8.2"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   stack_trace:
     dependency: transitive
     description:
@@ -491,11 +461,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "0.4.13"
-=======
-    version: "0.4.9"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   typed_data:
     dependency: transitive
     description:
@@ -509,11 +475,7 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-<<<<<<< HEAD
     version: "2.1.3"
-=======
-    version: "2.1.2"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   win32:
     dependency: transitive
     description:
@@ -529,9 +491,5 @@ packages:
     source: hosted
     version: "0.2.0+2"
 sdks:
-<<<<<<< HEAD
   dart: ">=2.18.0-146.0.dev <3.0.0"
-=======
-  dart: ">=2.17.0-0 <3.0.0"
->>>>>>> 2a933c3bc0ff0dbe2c0b81612b69d728a1c93e56
   flutter: ">=2.8.1"
