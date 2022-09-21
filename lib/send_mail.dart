@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:sms_forward/provider/provider.dart';
 import 'google_signIn.dart';
 import 'loginPage.dart';
 
@@ -26,19 +29,52 @@ class _EmailSenderState extends State<EmailSender> {
   String status = "Loading......";
   Timer? timer;
 
+  int START_SERVICE = 0;
+
+  Future<void> startService() async {
+    if (Platform.isAndroid) {
+      var methodChannel = MethodChannel("com.example.messages");
+      String data = await methodChannel.invokeMethod("startService");
+      debugPrint(data);
+    }
+  }
+
+  Future<void> stopService() async {
+    if (Platform.isAndroid) {
+      var methodChannel = MethodChannel("com.example.messages");
+      String data = await methodChannel.invokeMethod("stopService");
+      debugPrint(data);
+    }
+  }
+
   @override
   void initState() {
+    // Timer.periodic(Duration(seconds: 1), (timer) {
+    //         setState(() {
+    //           START_SERVICE++;
+    //           print('aaaaa$START_SERVICE');
+    //         });
+    //       });
     // TODO: implement initState
     super.initState();
-    loadData();
-    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
-      if (toEmail.isNotEmpty) {
-        loadData();
-      }
+
+    loadData().then((value) {
+      timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
+        setState(() {
+          START_SERVICE++;
+          print('aaaaa$START_SERVICE');
+        });
+        if (toEmail.isNotEmpty) {
+          loadData();
+        }
+      });
     });
   }
 
-  void loadData() async {
+  loadData() async {
+    Controller controller = Provider.of(context, listen: false);
+     controller.background();
+    print('bbbbbbbb');
     final prefs = await SharedPreferences.getInstance();
     timeStamp = prefs.getInt('time');
     toEmail = prefs.getStringList('email') ?? [];
