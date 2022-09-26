@@ -9,7 +9,7 @@ class Controller extends ChangeNotifier {
     if (Platform.isAndroid) {
       var methodChannel = MethodChannel("com.example.messages");
       String data = await methodChannel.invokeMethod("startService");
-      debugPrint(data);
+     // debugPrint(data);
     }
     notifyListeners();
   }
@@ -32,6 +32,6 @@ class Controller extends ChangeNotifier {
 
     // START_SERVICE = 0;
     // }
-    notifyListeners();
+    //notifyListeners();
   }
 }

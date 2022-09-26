@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sms_forward/loginPage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sms_forward/provider/auth_provider.dart';
 import 'package:sms_forward/provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-int START_SERVICE = 0;
-
- 
+  
 
   // Future<void> stopService() async {
   //   if (Platform.isAndroid) {
@@ -24,10 +23,10 @@ int START_SERVICE = 0;
 
   await Permission.sms.request();
   await Firebase.initializeApp();
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => Controller()),
-      ],child: const MyApp()));
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider<Controller>(create: (_) => Controller()),
+     ChangeNotifierProvider<AuthController>(create: (_) => AuthController()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

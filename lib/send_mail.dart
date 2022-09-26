@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:sms_forward/provider/auth_provider.dart';
 import 'package:sms_forward/provider/provider.dart';
 import 'google_signIn.dart';
 import 'loginPage.dart';
@@ -39,31 +40,29 @@ class _EmailSenderState extends State<EmailSender> {
     }
   }
 
-  Future<void> stopService() async {
-    if (Platform.isAndroid) {
-      var methodChannel = MethodChannel("com.example.messages");
-      String data = await methodChannel.invokeMethod("stopService");
-      debugPrint(data);
-    }
-  }
+  
 
   @override
   void initState() {
-    // Timer.periodic(Duration(seconds: 1), (timer) {
-    //         setState(() {
-    //           START_SERVICE++;
-    //           print('aaaaa$START_SERVICE');
-    //         });
-    //       });
-    // TODO: implement initState
+    AuthController authController = Provider.of(context, listen: false);
+        Controller controller = Provider.of(context, listen: false);
+    controller.background();
+    Timer.periodic(Duration(minutes: 50), (timer) {
+      authController.refreshToken();
+      // setState(() {
+      //   START_SERVICE++;
+      //   print('aaaaa$START_SERVICE');
+      // });
+    });
+
     super.initState();
 
     loadData().then((value) {
       timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
-        setState(() {
-          START_SERVICE++;
-          print('aaaaa$START_SERVICE');
-        });
+        // setState(() {
+        //   START_SERVICE++;
+        //   print('aaaaa$START_SERVICE');
+        // });
         if (toEmail.isNotEmpty) {
           loadData();
         }
@@ -72,8 +71,8 @@ class _EmailSenderState extends State<EmailSender> {
   }
 
   loadData() async {
-    Controller controller = Provider.of(context, listen: false);
-     controller.background();
+
+    
     print('bbbbbbbb');
     final prefs = await SharedPreferences.getInstance();
     timeStamp = prefs.getInt('time');
