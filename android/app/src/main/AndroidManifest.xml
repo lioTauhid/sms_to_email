@@ -9,10 +9,11 @@
     </queries>
 
     <uses-permission android:name="android.permission.READ_SMS" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="sms_forward"
-        android:name="${applicationName}"
+        android:name=".App"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -40,5 +41,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <service android:name=".AppService"/>    
     </application>
 </manifest>

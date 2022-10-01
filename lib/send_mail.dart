@@ -28,17 +28,18 @@ class _EmailSenderState extends State<EmailSender> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    loadData();
-    timer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
-      if (toEmail.isNotEmpty) {
-        loadData();
-      }
+
+    loadData().then((value) {
+      timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
+        if (toEmail.isNotEmpty) {
+          loadData();
+        }
+      });
     });
   }
 
-  void loadData() async {
+  loadData() async {
     final prefs = await SharedPreferences.getInstance();
     timeStamp = prefs.getInt('time');
     toEmail = prefs.getStringList('email') ?? [];
@@ -82,107 +83,109 @@ class _EmailSenderState extends State<EmailSender> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: Drawer(
-          child: ListView(children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(
-                userC.displayName,
-                style: const TextStyle(color: Colors.white),
-              ),
-              accountEmail: ListView.builder(
-                itemCount: toEmail.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Text(
-                    toEmail.elementAt(index),
-                    style: const TextStyle(color: Colors.white),
-                  );
-                },
-              ),
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage(userC.photoURL),
-              ),
-              decoration: const BoxDecoration(color: Colors.blueGrey),
+      drawer: Drawer(
+        child: ListView(children: [
+          UserAccountsDrawerHeader(
+            accountName: Text(
+              userC.displayName,
+              style: const TextStyle(color: Colors.white),
             ),
-            ListTile(
-              title: const Text('Edit Email'),
-              leading: const Icon(Icons.email),
+            accountEmail: ListView.builder(
+              itemCount: toEmail.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Text(
+                  toEmail.elementAt(index),
+                  style: const TextStyle(color: Colors.white),
+                );
+              },
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: NetworkImage(userC.photoURL),
+            ),
+            decoration: const BoxDecoration(color: Colors.blueGrey),
+          ),
+          ListTile(
+            title: const Text('Edit Email'),
+            leading: const Icon(Icons.email),
+            onTap: () {
+              addEmailDialog(context);
+            },
+          ),
+          ListTile(
+            title: const Text('About Us'),
+            leading: const Icon(Icons.info_outline_rounded),
+            onTap: () {
+              aboutDialog(context);
+            },
+          ),
+          ListTile(
+            title: const Text('Support'),
+            leading: const Icon(Icons.contact_support_outlined),
+            onLongPress: () {},
+          ),
+          ListTile(
+            title: const Text('Logout'),
+            leading: const Icon(Icons.logout),
+            onTap: () async {
+              await GoogleAuthApi.signOut();
+              SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+            },
+          ),
+          ListTile(
+              title: const Text('Close'),
+              leading: const Icon(Icons.close),
               onTap: () {
-                addEmailDialog(context);
-              },
+                Navigator.of(context).pop();
+              }),
+        ]),
+      ),
+      appBar: AppBar(
+        title: const Text('Sms to Email'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.email,
+              size: 30,
             ),
-            ListTile(
-              title: const Text('About Us'),
-              leading: const Icon(Icons.info_outline_rounded),
-              onTap: () {
-                aboutDialog(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Support'),
-              leading: const Icon(Icons.contact_support_outlined),
-              onLongPress: () {},
-            ),
-            ListTile(
-              title: const Text('Logout'),
-              leading: const Icon(Icons.logout),
-              onTap: () async {
-                await GoogleAuthApi.signOut();
-                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-              },
-            ),
-            ListTile(
-                title: const Text('Close'),
-                leading: const Icon(Icons.close),
-                onTap: () {
-                  Navigator.of(context).pop();
-                }),
-          ]),
-        ),
-        appBar: AppBar(
-          title: const Text('Sms to Email'),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.email,
-                size: 30,
+            onPressed: () async {
+              await addEmailDialog(context);
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height / 3,
+          width: MediaQuery.of(context).size.width / 1.2,
+          decoration: BoxDecoration(
+              color: Colors.lightBlueAccent,
+              borderRadius: BorderRadius.circular(20)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              isSent
+                  ? const Icon(
+                      Icons.done_outline,
+                      size: 50,
+                      color: Colors.greenAccent,
+                    )
+                  : const CircularProgressIndicator(),
+              const SizedBox(
+                height: 10,
               ),
-              onPressed: () async {
-                await addEmailDialog(context);
-              },
-            ),
-          ],
+              Text(
+                status,
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue),
+              )
+            ],
+          ),
         ),
-        body: Center(
-          child: Container(
-              height: MediaQuery.of(context).size.height / 3,
-              width: MediaQuery.of(context).size.width / 1.2,
-              decoration: BoxDecoration(
-                  color: Colors.lightBlueAccent,
-                  borderRadius: BorderRadius.circular(20)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  isSent
-                      ? const Icon(
-                          Icons.done_outline,
-                          size: 50,
-                          color: Colors.greenAccent,
-                        )
-                      : const CircularProgressIndicator(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    status,
-                    style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue),
-                  )
-                ],
-              )),
-        ));
+      ),
+    );
     // child: ListView.builder(
     //     shrinkWrap: true,
     //     //  physics: NeverScrollableScrollPhysics(),
@@ -343,19 +346,21 @@ class _EmailSenderState extends State<EmailSender> {
   }
 
   void showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        message,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+        ),
+        duration: const Duration(seconds: 6),
+        backgroundColor: Colors.blue,
+        action: SnackBarAction(
+          label: 'Ok',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
       ),
-      duration: const Duration(seconds: 6),
-      backgroundColor: Colors.blue,
-      action: SnackBarAction(
-        label: 'Ok',
-        onPressed: () {
-          // Some code to undo the change.
-        },
-      ),
-    ));
+    );
   }
 
   Future<void> aboutDialog(BuildContext context) async {

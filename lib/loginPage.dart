@@ -97,8 +97,12 @@ class _LoginPageState extends State<LoginPage> {
   checkSignIn() async {
     if (await googleSignIn.isSignedIn()) {
       refreshToken().then((value) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: ((context) => const EmailSender())));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: ((context) => const EmailSender()),
+          ),
+        );
       });
     } else {
       signInWithGoogle();
@@ -112,12 +116,15 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-        body: Center(
+    return const
+         Scaffold(
+         body:
+        Center(
             child: Text(
       'Loading........',
       style: TextStyle(
           fontSize: 17, fontWeight: FontWeight.bold, color: Colors.blue),
-    )));
+    ))
+    );
   }
 }
